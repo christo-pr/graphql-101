@@ -20,9 +20,25 @@ module.exports = gql`
     description: String
   }
 
+  input MicheladoInput {
+    name: String
+    description: String
+  }
+
+  input SkillMicheladoInput {
+    michelado: ID
+    skills: [ID]
+  }
+
   type Query {
     michelado(id: ID!): Michelado
+    michelados: [Michelado]
     projects: [Project]
     skills: [Skill]
+  }
+
+  type Mutation {
+    addMichelado(input: MicheladoInput): Michelado
+    addSkillToMichelado(input: SkillMicheladoInput): Michelado
   }
 `

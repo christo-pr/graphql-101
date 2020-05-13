@@ -53,11 +53,18 @@ const PROJECTS = [
   { id: 3, name: "VendeTodo", description: "App para vender todo" },
 ]
 
+function getId(list) {
+  return list.length + 1
+}
+
 module.exports = {
   Query: {
     michelado: function (parent, args, ctx, info) {
       const { id } = args
       return MICHELADOS.find((m) => m.id === parseInt(id))
+    },
+    michelados: function (parent, args, ctx, info) {
+      return MICHELADOS
     },
     projects: function (parent, args, ctx, info) {
       return PROJECTS
@@ -66,13 +73,43 @@ module.exports = {
       return SKILLS
     },
   },
+  Mutation: {
+    addMichelado: function (parent, args, ctx, info) {
+      const { input } = args
+      const newMichelado = {
+        id: getId(MICHELADOS),
+        name: input.name,
+        description: input.description,
+        skills: [],
+        projects: [],
+      }
+
+      MICHELADOS.push(newMichelado)
+
+      return newMichelado
+    },
+    addSkillToMichelado: function (parent, args, ctx, info) {
+      const { input } = args
+      const micheladoIdx = MICHELADOS.findIndex(
+        (m) => m.id === parseInt(input.michelado)
+      )
+
+      if (!micheladoIdx) {
+        throw new Error("No user found")
+      }
+
+      MICHELADOS[micheladoIdx].skills.push(...input.skills)
+
+      return MICHELADOS[micheladoIdx]
+    },
+  },
   Michelado: {
     skills: function (parent, args, ctx, info) {
-      const skillsIds = parent.skills
+      const skillsIds = parent.skills.map((s) => parseInt(s))
       return SKILLS.filter((sk) => skillsIds.includes(sk.id))
     },
     projects: function (parent, args, ctx, info) {
-      const projectsIds = parent.projects
+      const projectsIds = parent.projects.map((p) => parseInt(p))
       return PROJECTS.filter((p) => projectsIds.includes(p.id))
     },
   },
